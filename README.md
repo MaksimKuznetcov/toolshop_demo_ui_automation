@@ -2,12 +2,10 @@
 
 Проект по автоматизации UI-тестирования современного веб-интерфейса интернет-магазина инструментов [**Toolshop Demo**](https://practicesoftwaretesting.com) с использованием **Python**, **Playwright** и паттерна **Page Object Model (POM)**.
 
-[![**Allure Report**](https://shields.io)](https://maksimkuznetcov.github.io/toolshop_demo_ui_automation/)
-
 
 ## ⚙️ Стек технологий
 
-* **Язык программирования:** Python 3.11+
+* **Язык программирования:** Python 3.13.
 * **Фреймворк тестирования:** Pytest
 * **Инструмент автоматизации:** Playwright (Python)
 * **Архитектурный паттерн:** Page Object Model (POM)
@@ -29,8 +27,9 @@
 │   ├── conftest.py          # Глобальные фикстуры, Faker, хук для скриншотов
 │   └── test_e2e_purchase.py # Итоговый сквозной E2E-тест покупки
 ├── pytest.ini               # Системные настройки pytest и пути модулей
-├── requirements.in          # Верхнеуровневые прямые зависимости проекта
-└── requirements.txt         # Скомпилированный бесконфликтный список зависимостей
+└── requirements
+    ├── requirements.in      # Верхнеуровневые прямые зависимости проекта
+    └── requirements.txt     # Скомпилированный бесконфликтный список зависимостей
 ```
 
 
@@ -86,3 +85,8 @@ playwright install chromium
 3. Скачивается бинарный файл браузера Playwright Chromium.
 4. Тесты прогоняются в headless-режиме. Если тест падает — специальный хук в `conftest.py` делает скриншот и пришивает его к результатам.
 5. Результаты собираются в HTML-страницу Allure Report и автоматически пушатся в ветку `gh-pages`, обновляя живую ссылку на отчет.
+
+
+## 📊 Живой отчет о тестировании (Allure Report)
+Результаты автоматического запуска тестов на Python в облаке GitHub Actions доступны по ссылке:
+👉 [**Смотреть Allure Report проекта**](https://maksimkuznetcov.github.io/toolshop_demo_ui_automation/)
