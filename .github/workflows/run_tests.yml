@@ -1,55 +1,41 @@
-name: Run Playwright Tests 🎭
+name: Playwright UI Tests 🎭
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main, master ]
-  workflow_dispatch: # Позволяет запускать тесты вручную одной кнопкой в интерфейсе GitHub
-
-permissions:
-  contents: write
-  pages: write
-  id-token: write
+    branches: [ "main" ]
 
 jobs:
-  test:
+  ui-tests:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout project code
       uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.13' # Идеальная стабильная версия для QA-стека
-        cache: 'pip'
+        python-version: '3.11' # Для UI-тестов стабильная 3.11 — лучший выбор
 
+    # Модифицировано под ваш новый стек: компилируем зависимости через pip-tools
     - name: Install dependencies via pip-tools
       run: |
         python -m pip install --upgrade pip
         pip install pip-tools
-        # Компилируем чистый requirements.txt прямо в CI, гарантируя отсутствие конфликтов
-        pip-compile requirements\requirements.in
-        pip install -r requirements\requirements.txt
+        pip-compile requirements/requirements.in
+        pip install -r requirements/requirements.txt
 
-    - name: Ensure Playwright browsers are installed
+    # СТРОГО ОБЯЗАТЕЛЬНО ДЛЯ UI: Скачиваем браузер Chromium в контейнер Ubuntu
+    - name: Install Playwright Chromium Browser
       run: |
         playwright install --with-deps chromium
 
-    - name: Run UI tests with Pytest
+    - name: Run Pytest with Allure
       run: |
-        # Запускаем в headless-режиме (без отображения окна), результаты пишем в allure-results
-        pytest --alluredir=allure-results
-      continue-on-error: true # Позволяет продолжить сборку отчета, даже если тесты упали
-
-    - name: Get Allure history
-      uses: actions/checkout@v4
-      if: always()
-      with:
-        ref: gh-pages
-        path: gh-pages
+        pytest -v --alluredir=allure-results
+      continue-on-error: true
 
     - name: Generate Allure Report
       uses: simple-elf/allure-report-action@master
@@ -61,7 +47,7 @@ jobs:
         keep_reports: 20
 
     - name: Deploy Allure Report to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
+      uses: peaceiris/actions-gh-pages@v4 # Используем свежую v4
       if: always()
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
