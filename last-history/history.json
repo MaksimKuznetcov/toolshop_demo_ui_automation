@@ -1,1 +1,1 @@
-{}
+{"10661677035a9f079711364aa8d1e034":{"statistic":{"failed":0,"broken":1,"skipped":0,"passed":0,"unknown":0,"total":1},"items":[{"uid":"6128ddf6339eba2b","reportUrl":"https://MaksimKuznetcov.github.io/toolshop_demo_ui_automation/7/#testresult/6128ddf6339eba2b","status":"broken","statusDetails":"playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"[data-test=\\\"nav-categories\\\"]\")","time":{"start":1781015074843,"stop":1781015115274,"duration":40431}}]}}
