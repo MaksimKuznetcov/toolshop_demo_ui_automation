@@ -32,20 +32,27 @@ def catalog_page(page): return CatalogPage(page)
 def checkout_page(page): return CheckoutPage(page)
 
 
-# Настройка полного экрана
+# Макскировка для обхода капчи
 @pytest.fixture(scope="session")
 def browser_context_args(browser_context_args):
+    """
+    Маскирует браузер под реального пользователя Windows,
+    чтобы обойти глухую капчу Cloudflare в GitHub Actions
+    """
     return {
         **browser_context_args,
-        "no_viewport": True  # Сообщает Playwright, что не нужно принудительно обрезать рамки, позволяя браузеру растянуться на весь физический экран.
-    }
-
-@pytest.fixture(scope="session")
-def browser_type_launch_args(browser_type_launch_args):
-    """Передает Chromium команду 'запуститься развернутым'"""
-    return {
-        **browser_type_launch_args,
-        "args": ["--start-maximized"]
+        "viewport": { "width": 1920, "height": 1080 },
+        # Подменяем заголовок на стандартный домашний Chrome на Windows 10
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        # Добавляем локаль и языки, чтобы сервер не выдавал пустую EN-локаль дата-центра
+        "locale": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+        # Маскируем системную переменную navigator.webdriver
+        "extra_http_headers": {
+            "sec-ch-ua": '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": '"Windows"',
+            "upgrade-insecure-requests": "1"
+        }
     }
 
 
