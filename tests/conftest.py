@@ -46,13 +46,22 @@ def browser_context_args(browser_context_args):
         "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         # Добавляем локаль и языки, чтобы сервер не выдавал пустую EN-локаль дата-центра
         "locale": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
-        # Маскируем системную переменную navigator.webdriver
-        "extra_http_headers": {
-            "sec-ch-ua": '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
-            "upgrade-insecure-requests": "1"
-        }
+        # Говорим хрому игнорировать статус автоматизации
+        "ignore_https_errors": True
+    }
+
+@pytest.fixture(scope="session")
+def browser_type_launch_args(browser_type_launch_args):
+    """
+    Добавляем системные аргументы Chromium, чтобы скрыть 
+    автоматическую природу управления браузером от Cloudflare
+    """
+    return {
+        **browser_type_launch_args,
+        "args": [
+            "--disable-blink-features=AutomationControlled", # Скрывает navigator.webdriver = true
+            "--disable-infobars" # Убирает плашку "Браузером управляет автоматизированное ПО"
+        ]
     }
 
 
