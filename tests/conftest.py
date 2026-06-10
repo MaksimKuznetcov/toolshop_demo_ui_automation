@@ -1,5 +1,6 @@
 import pytest
 import allure
+from playwright_stealth import stealth_sync
 from faker import Faker
 
 
@@ -12,6 +13,7 @@ fake = Faker('en_US')  # Toolshop англоязычный, генерируем
 
 @pytest.fixture()
 def user_data():
+    """Фикстура для генерации динамических валидных данных покупателя."""
     return {
         'postal_code': fake.postcode(),
         'house_number': fake.building_number(),
@@ -32,36 +34,33 @@ def catalog_page(page): return CatalogPage(page)
 def checkout_page(page): return CheckoutPage(page)
 
 
-# Макскировка для обхода капчи
+# НАСТРОЙКИ ОКРУЖЕНИЯ БРАУЗЕРА И МАСКИРОВКИ (STEALTH & ANTI-BOT)
+@pytest.fixture(autouse=True)
+def apply_stealth(page):
+    """
+    Автоматическая фикстура (autouse=True), которая выполняется перед каждым тестом.
+    Инжектирует маскировочные скрипты в JavaScript-движок каждой новой страницы,
+    скрывая автоматическую природу Playwright (удаляет navigator.webdriver и т.д.).
+    Необходима для стабильного прохождения защитных фильтров Cloudflare WAF в CI/CD.
+    """
+    stealth_sync(page)
+    yield
+
+
 @pytest.fixture(scope="session")
 def browser_context_args(browser_context_args):
     """
-    Маскирует браузер под реального пользователя Windows,
-    чтобы обойти глухую капчу Cloudflare в GitHub Actions
+    Глобальная сессионная фикстура для конфигурации контекста браузера.
+    1. Устанавливает фиксированное Full HD разрешение, предотвращая переход сайта 
+       в мобильную верстку (адаптивный дизайн со свернутыми бургер-меню).
+    2. Подменяет User-Agent и локаль под реальный десктопный компьютер на Windows 10,
+       чтобы избежать блокировок от Cloudflare Turnstile в облачной среде GitHub Actions.
     """
     return {
         **browser_context_args,
         "viewport": { "width": 1920, "height": 1080 },
-        # Подменяем заголовок на стандартный домашний Chrome на Windows 10
         "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        # Добавляем локаль и языки, чтобы сервер не выдавал пустую EN-локаль дата-центра
-        "locale": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
-        # Говорим хрому игнорировать статус автоматизации
-        "ignore_https_errors": True
-    }
-
-@pytest.fixture(scope="session")
-def browser_type_launch_args(browser_type_launch_args):
-    """
-    Добавляем системные аргументы Chromium, чтобы скрыть 
-    автоматическую природу управления браузером от Cloudflare
-    """
-    return {
-        **browser_type_launch_args,
-        "args": [
-            "--disable-blink-features=AutomationControlled", # Скрывает navigator.webdriver = true
-            "--disable-infobars" # Убирает плашку "Браузером управляет автоматизированное ПО"
-        ]
+        "locale": "en-US,en;q=0.9"
     }
 
 

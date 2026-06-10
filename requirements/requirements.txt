@@ -27,7 +27,11 @@ iniconfig==2.3.0
 packaging==26.2
     # via pytest
 playwright==1.60.0
-    # via pytest-playwright
+    # via
+    #   playwright-stealth
+    #   pytest-playwright
+playwright-stealth==2.0.3
+    # via -r requirements/requirements.in
 pluggy==1.6.0
     # via
     #   allure-python-commons
