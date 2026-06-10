@@ -1,6 +1,6 @@
 import pytest
 import allure
-from playwright_stealth import stealth_sync
+from playwright_stealth import Stealth 
 from faker import Faker
 
 
@@ -43,7 +43,8 @@ def apply_stealth(page):
     скрывая автоматическую природу Playwright (удаляет navigator.webdriver и т.д.).
     Необходима для стабильного прохождения защитных фильтров Cloudflare WAF в CI/CD.
     """
-    stealth_sync(page)
+    stealth = Stealth()
+    stealth.apply_stealth_sync(page)
     yield
 
 
